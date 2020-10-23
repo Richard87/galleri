@@ -1,10 +1,10 @@
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
 import Gallery from "react-photo-gallery"
 import {useCallback, useState} from "react";
 import Carousel, { Modal, ModalGateway } from "react-images";
 
 export default function Home({images}) {
+    const headerImage = images.find(i => i.name === "cropped-frontrull2tett.jpg")
     const [currentImage, setCurrentImage] = useState(0);
     const [viewerIsOpen, setViewerIsOpen] = useState(false);
 
@@ -19,21 +19,21 @@ export default function Home({images}) {
     };
 
     return (
-        <div className={styles.container}>
+        <div style={{background: '#ffffff', marginTop: '3em'}} className={"container"}>
             <Head>
                 <title>Monica Larsen</title>
                 <link rel="icon" href="/favicon.ico"/>
             </Head>
 
-            <main className={styles.main}>
-                <h1 className={styles.title}>
-                    MONICA LARSEN
-                </h1>
-                <h2>photographer</h2>
-                <Gallery
-                    photos={images}
-                    onClick={openLightbox}
-                />
+            <main>
+                <div className={"col"}>
+                    <img className="img-fluid"
+                         src={headerImage.src}
+                         alt="Monica Larsen, Photographer"/>
+                    <Gallery
+                        photos={images}
+                        onClick={openLightbox}
+                    /></div>
                 <ModalGateway>
                     {viewerIsOpen ? (
                         <Modal onClose={closeLightbox}>
@@ -50,7 +50,7 @@ export default function Home({images}) {
                 </ModalGateway>
             </main>
 
-            <footer className={styles.footer}>
+            <footer className={"my-5 pt-5 text-muted text-center text-small"}>
                 <p>
                     About me
                     I regularly shoot images in the industrial sectors and for corporate business. I fell in love with visual art craft after working in an advertising agency. After living in London for almost 3 years working as a Photographer´s assistant I opened up my own studio in 2007 and have since then been shooting mostly advertising and editorial images for a wide range of clients, on location and in studio. I always aim to shoot images that connect emotionally with audiences. When it comes to post-production I do a lot of my own retouching, but I also work with some excellent retouching companies in Norway and abroad. I tailor the image exactly to what the client want to communicate so please feel free to contact me.   Tel +47-99229821

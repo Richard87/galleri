@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "bootstrap": "^4.5.3",
     "minio": "^7.0.16",
     "next": "9.5.5",
     "react": "17.0.1",
