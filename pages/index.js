@@ -1,65 +1,99 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
+import Gallery from "react-photo-gallery"
+import {useCallback, useState} from "react";
+import Carousel, { Modal, ModalGateway } from "react-images";
 
-export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+export default function Home({images}) {
+    const [currentImage, setCurrentImage] = useState(0);
+    const [viewerIsOpen, setViewerIsOpen] = useState(false);
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+    const openLightbox = useCallback((event, { photo, index }) => {
+        setCurrentImage(index);
+        setViewerIsOpen(true);
+    }, []);
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+    const closeLightbox = () => {
+        setCurrentImage(0);
+        setViewerIsOpen(false);
+    };
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+    return (
+        <div className={styles.container}>
+            <Head>
+                <title>Monica Larsen</title>
+                <link rel="icon" href="/favicon.ico"/>
+            </Head>
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+            <main className={styles.main}>
+                <h1 className={styles.title}>
+                    MONICA LARSEN
+                </h1>
+                <h2>photographer</h2>
+                <Gallery
+                    photos={images}
+                    onClick={openLightbox}
+                />
+                <ModalGateway>
+                    {viewerIsOpen ? (
+                        <Modal onClose={closeLightbox}>
+                            <Carousel
+                                currentIndex={currentImage}
+                                views={images.map(x => ({
+                                    ...x,
+                                    srcset: x.srcSet,
+                                    caption: x.title
+                                }))}
+                            />
+                        </Modal>
+                    ) : null}
+                </ModalGateway>
+            </main>
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+            <footer className={styles.footer}>
+                <p>
+                    About me
+                    I regularly shoot images in the industrial sectors and for corporate business. I fell in love with visual art craft after working in an advertising agency. After living in London for almost 3 years working as a Photographer´s assistant I opened up my own studio in 2007 and have since then been shooting mostly advertising and editorial images for a wide range of clients, on location and in studio. I always aim to shoot images that connect emotionally with audiences. When it comes to post-production I do a lot of my own retouching, but I also work with some excellent retouching companies in Norway and abroad. I tailor the image exactly to what the client want to communicate so please feel free to contact me.   Tel +47-99229821
+                </p>
+            </footer>
         </div>
-      </main>
+    )
+}
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+export async function getStaticProps() {
+    const Minio = require('minio')
+    const minioClient = new Minio.Client({
+        endPoint: 'minio.r6.no',
+        useSSL: true,
+        accessKey: process.env.NEXT_PUBLIC_MINIO_ACCESS,
+        secretKey: process.env.MINIO_SECRET
+    });
+
+    const imagesPromise = new Promise((resolve, reject) => {
+        const images = []
+        minioClient.listObjects('monica')
+            .on('data', obj => {
+                minioClient.presignedGetObject("monica", obj.name, (err, presignedUrl) => {
+                    if(err)
+                        console.error(err)
+
+                    images.push({
+                        lastModified: obj.lastModified.toISOString(),
+                        src: presignedUrl,
+                        name: obj.name,
+                        loading: 'lazy',
+                        width: 1,
+                        height: 1
+                    })
+                })
+            })
+            .on('error', err => reject(err))
+            .on('end', () => resolve(images))
+    })
+
+    return {
+        props: {
+            images: await imagesPromise
+        }
+    }
 }

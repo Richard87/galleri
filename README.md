@@ -10,21 +10,33 @@ npm run dev
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
 
-## Learn More
+Helm Chart Install
+NAME: minio-1603466827
+LAST DEPLOYED: Fri Oct 23 17:27:09 2020
+NAMESPACE: minio
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Minio can be accessed via port 9000 on the following DNS name from within your cluster:
+minio-1603466827.minio.svc.cluster.local
 
-To learn more about Next.js, take a look at the following resources:
+To access Minio from localhost, run the below commands:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+  1. export POD_NAME=$(kubectl get pods --namespace minio -l "release=minio-1603466827" -o jsonpath="{.items[0].metadata.name}")
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+  2. kubectl port-forward $POD_NAME 9000 --namespace minio
 
-## Deploy on Vercel
+Read more about port forwarding here: http://kubernetes.io/docs/user-guide/kubectl/kubectl_port-forward/
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/import?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+You can now access Minio server on http://localhost:9000. Follow the below steps to connect to Minio server with mc client:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+  1. Download the Minio mc client - https://docs.minio.io/docs/minio-client-quickstart-guide
+
+  2. mc config host add minio-1603466827-local http://localhost:9000 4CPXpYgppzlHhQ3g7r_ZBo4pXxk6jnpw aCOqg-N5gZawYWe0HjM4rSTdVHhKZNMy S3v4
+
+  3. mc ls minio-1603466827-local
+
+Alternately, you can use your browser or the Minio SDK to access the server - https://docs.minio.io/categories/17
