@@ -29,7 +29,7 @@ export default function Home({images}) {
                 <div className={"col"}>
                     <img className="img-fluid"
                          src={headerImage.src}
-                         alt="Monica Larsen, Photographer"/>
+                         alt="Richard Hagen, Photographer"/>
                     <Gallery
                         photos={images}
                         onClick={openLightbox}
